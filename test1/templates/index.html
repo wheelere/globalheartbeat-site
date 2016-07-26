@@ -4,12 +4,12 @@
 
     <form action="/adduser/" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ new_form.as_p }}
         <input type="submit" value="Add number"/>
     </form>
     <form action="/remove/" method="POST">
         {% csrf_token %}
-        <label> Remove a number from the database: </label>
+        {{ remove_form.as_p }}
         <input type="submit" value="Remove number"/>
     </form>
     <form action="/send/" method="POST">

@@ -7,7 +7,7 @@ from django.db import transaction
 from django.template import loader
 
 from test1.core.models import User
-from .forms import SubmitNewUser
+from .forms import SubmitNewUser, RemoveUser
 
 import requests
 
@@ -30,8 +30,9 @@ def home(request):
 	""" This function renders the index.html page with the SubmitNewUser form
 	specified in forms.py.
 	"""
-	form = SubmitNewUser()
-	context = { 'form': form }
+	new_form = SubmitNewUser()
+	remove_form = RemoveUser()
+	context = { 'new_form': new_form, 'remove_form': remove_form }
 	return render(request, 'index.html', context)
 
 def send_sms(request):
@@ -63,11 +64,18 @@ def add_user(request):
 	if request.method == "POST":
 		form = SubmitNewUser(request.POST)
 		if form.is_valid():
+			# Create a new User based on form data
 			first = form.cleaned_data['first_name']
 			last = form.cleaned_data['last_name']
 			number = form.cleaned_data['number']
-			# Create a new User based
+			email = form.cleaned_data['email']
 			u = User(first=first, last=last, number=number)
+			# Handle email address
+			if email:
+				if form.cleaned_data['confirm_email'] == email:
+					# TODO: validate email addresses
+					u.email = email;
+
 			# Check that there isn't already a copy of that number in the DB
 			existing = User.objects.filter(number=number)
 			if not existing:
@@ -75,6 +83,15 @@ def add_user(request):
 	# For now, return to the home page
 	return HttpResponseRedirect('/')
 
+@transaction.atomic
 def remove_user(request):
-	"""STUB"""
+	""" remove_user is invoked when the /removeuser url is landed on.
+	It collects and validates the form data from the RemoveUser form, then
+	attempts to remove that number from our database.
+	"""
+	if request.method == "POST":
+		form = RemoveUser(request.POST)
+		if form.is_valid():
+			result = User.objects.filter(number=form.cleaned_data['number']).delete()
+	# TODO: interact with user: alert regarding results or errors
 	return HttpResponseRedirect('/')
