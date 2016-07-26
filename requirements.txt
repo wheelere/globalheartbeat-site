@@ -3,3 +3,4 @@ Django==1.9.1
 djangorestframework==3.4.0
 MySQL-python==1.2.5
 requests==2.10.0
+whitenoise==3.2
