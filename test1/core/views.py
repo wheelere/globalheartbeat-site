@@ -1,7 +1,8 @@
 # views.py
 
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.shortcuts import render, RequestContext
+from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib import messages
 from django.conf import settings
 from django.db import transaction
 from django.template import loader
@@ -21,19 +22,32 @@ def send_to_users(users, message):
 	appear in the API Report section of Mozeo's dashboard. In the second case,
 	a text message will actually be sent to all numbers.
 	"""
-	gen_params = '?companykey=%s&username=%s&password=%s&messagebody=%s' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
+	gen_params = '?companykey=%s&username=%s&password=%s&messagebody=%sstop=no' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
 		requests.get(settings.MOZEO_DEV_URL + param_str)
+
+def verify_user(user):
+	verify_str = ("Hello! Your number has been signed up to receive messages "
+				  "from Global Heartbeat! To confirm that you would like to "
+				  "receive these messages, reply 'SJBKXG' to this number.")
+	send_to_users([user], verify_str)
 
 def home(request):
 	""" This function renders the index.html page with the SubmitNewUser form
 	specified in forms.py.
 	"""
+	# set our template as 'index.html'
+	template = loader.get_template('index.html')
+
+	# Grab the forms here
 	new_form = SubmitNewUser()
 	remove_form = RemoveUser()
-	context = { 'new_form': new_form, 'remove_form': remove_form }
-	return render(request, 'index.html', context)
+	# Create a context for the request, and add the forms to it as well
+	context = RequestContext(request, { 'new_form': new_form,
+										'remove_form': remove_form, })
+	# render our template
+	return HttpResponse(template.render(context))
 
 def send_sms(request):
 	""" This function is called at the /send url extension (see urls.py).
@@ -49,6 +63,7 @@ def send_sms(request):
 		message = "Hello, World!"
 		# pass the users and message to the send function
 		send_to_users(users, message)
+		messages.success(request, "Message sent!")
 		
 	# For now, return to the home page
 	return HttpResponseRedirect('/')
@@ -80,6 +95,11 @@ def add_user(request):
 			existing = User.objects.filter(number=number)
 			if not existing:
 				u.save()
+				messages.success(request, "User added!")
+			else:
+				messages.warning(request, "That number is already in our system.")
+		else:
+			messages.error(request, "Please fill out the required fields.")
 	# For now, return to the home page
 	return HttpResponseRedirect('/')
 
@@ -92,6 +112,21 @@ def remove_user(request):
 	if request.method == "POST":
 		form = RemoveUser(request.POST)
 		if form.is_valid():
-			result = User.objects.filter(number=form.cleaned_data['number']).delete()
+			user_to_remove = User.objects.filter(number=form.cleaned_data['number'])
+			if user_to_remove:
+				user_to_remove.delete()
+				messages.success(request, "You have been removed from our database.")
+			else:
+				messages.warning(request, "Sorry, we do not have a listing for that number.")
 	# TODO: interact with user: alert regarding results or errors
+	return HttpResponseRedirect('/')
+
+def handle_inbound(request):
+	""" handle_inbound is called when a POST request is made to the /inbound
+	url from an external source (CURRENTLY MOZEO). The request received will 
+	contain XML data including a static keyword, and the request will be handled
+	correspondingly.
+	"""
+	if request.method == "POST":
+		return
 	return HttpResponseRedirect('/')

@@ -16,12 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from test1.core.views import home, send_sms, add_user, remove_user
+import test1.core.views as views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', home, name='home'),
-    url(r'^send/', send_sms),
-    url(r'^adduser/', add_user),
-    url(r'^remove/', remove_user),
+    url(r'^$', views.home, name='home'),
+    url(r'^send/', views.send_sms),
+    url(r'^adduser/', views.add_user),
+    url(r'^remove/', views.remove_user),
+    url(r'^inbound/', views.handle_inbound)
 ]
