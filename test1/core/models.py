@@ -21,7 +21,7 @@ class User(models.Model):
 	verified = models.BooleanField(default=False)
 
 	def __str__(self):
-		return self.first + ' ' + self.last
+		return self.first + ' ' + self.last + ', ' + self.number
 
 class Event(models.Model):
 	# Type of event. Current options: add_user, remove_user, send_message, verify_user

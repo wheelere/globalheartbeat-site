@@ -95,8 +95,13 @@ def add_user(request):
 			existing = User.objects.filter(number=number)
 			if not existing:
 				u.save()
+				e = Event(type="add_user",
+					time_occurred=datetime.now(),
+					user_id=u.id)
+				logger.info("New user added to database (" + u + ").")
 				messages.success(request, "User added!")
 			else:
+				logger.info("")
 				messages.warning(request, "That number is already in our system.")
 		else:
 			messages.error(request, "Please fill out the required fields.")
@@ -128,6 +133,7 @@ def handle_inbound(request):
 	contain XML data including a static keyword, and the request will be handled
 	correspondingly.
 	"""
+	logger.info("Received Inbound Request.")
 	if request.method == "POST":
 		message = request.POST.get("IncomingMessage")
 		number = request.POST.get("Phonenumber")
