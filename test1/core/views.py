@@ -1,5 +1,6 @@
 # views.py
 
+from datetime import datetime
 from django.shortcuts import render, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
@@ -7,10 +8,13 @@ from django.conf import settings
 from django.db import transaction
 from django.template import loader
 
-from test1.core.models import User
+from test1.core.models import User, Event
 from .forms import SubmitNewUser, RemoveUser
 
 import requests
+import logging
+
+logger = logging.getLogger('core.views.logs')
 
 def send_to_users(users, message):
 	""" send_to_users takes a list of User models and a message to send. It
@@ -37,17 +41,13 @@ def home(request):
 	""" This function renders the index.html page with the SubmitNewUser form
 	specified in forms.py.
 	"""
-	# set our template as 'index.html'
-	template = loader.get_template('index.html')
-
 	# Grab the forms here
 	new_form = SubmitNewUser()
 	remove_form = RemoveUser()
 	# Create a context for the request, and add the forms to it as well
-	context = RequestContext(request, { 'new_form': new_form,
-										'remove_form': remove_form, })
+	context = { 'new_form': new_form, 'remove_form': remove_form }
 	# render our template
-	return HttpResponse(template.render(context))
+	return render(request, 'index.html', context=context)
 
 def send_sms(request):
 	""" This function is called at the /send url extension (see urls.py).
@@ -121,6 +121,7 @@ def remove_user(request):
 	# TODO: interact with user: alert regarding results or errors
 	return HttpResponseRedirect('/')
 
+@transaction.atomic
 def handle_inbound(request):
 	""" handle_inbound is called when a POST request is made to the /inbound
 	url from an external source (CURRENTLY MOZEO). The request received will 
@@ -128,5 +129,22 @@ def handle_inbound(request):
 	correspondingly.
 	"""
 	if request.method == "POST":
-		return
+		message = request.POST.get("IncomingMessage")
+		number = request.POST.get("Phonenumber")
+		if "SJBKXG" in message:
+			u = User.objects.filter(number=number)
+			try:
+				u = u.get()
+			except DoesNotExist:
+				logger.warning("Received inbound verify from an unlisted number.")
+				return HttpResponseRedirect('/')
+			except MultipleObjectsReturned:
+				logger.error("The number " + number + " has multiple User listings.")
+				return HttpResponseRedirect('/')
+			u.verified = True
+			u.save()
+			e = Event(type="verify_user",
+				time_occurred=datetime.now(),
+				user_id=u.id)
+			e.save()
 	return HttpResponseRedirect('/')

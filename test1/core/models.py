@@ -17,15 +17,17 @@ class User(models.Model):
 	email = models.CharField(max_length=255, default='')
 	# Registration Date
 	registration_date = models.DateTimeField(auto_now_add=True)
+	# Verified User
+	verified = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.first + ' ' + self.last
 
 class Event(models.Model):
-	# Type of event. Current options: add_user, remove_user, send_message
+	# Type of event. Current options: add_user, remove_user, send_message, verify_user
 	type = models.CharField(max_length=20)
 	# Time of event.
-	time_occured = models.DateTimeField(auto_now_add=True)
+	time_occurred = models.DateTimeField(auto_now_add=True)
 	# User related to event
 	user_id = models.IntegerField()
 
