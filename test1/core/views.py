@@ -137,22 +137,24 @@ def handle_inbound(request):
 	"""
 	logger.info("Received Inbound Request.")
 	if request.method == "POST":
-		message = request.POST.get("IncomingMessage")
-		number = request.POST.get("Phonenumber")
-		if "SJBKXG" in message:
-			u = User.objects.filter(number=number)
-			try:
-				u = u.get()
-			except DoesNotExist:
-				logger.warning("Received inbound verify from an unlisted number.")
-				return HttpResponseRedirect('/')
-			except MultipleObjectsReturned:
-				logger.error("The number " + number + " has multiple User listings.")
-				return HttpResponseRedirect('/')
-			u.verified = True
-			u.save()
-			e = Event(type="verify_user",
-				time_occurred=datetime.now(),
-				user_id=u.id)
-			e.save()
+		for key, value in request.POST.iteritems():
+    		print "%s %s" % (key, value)
+		# message = request.POST.get("IncomingMessage")
+		# number = request.POST.get("Phonenumber")
+		# if "SJBKXG" in message:
+		# 	u = User.objects.filter(number=number)
+		# 	try:
+		# 		u = u.get()
+		# 	except DoesNotExist:
+		# 		logger.warning("Received inbound verify from an unlisted number.")
+		# 		return HttpResponseRedirect('/')
+		# 	except MultipleObjectsReturned:
+		# 		logger.error("The number " + number + " has multiple User listings.")
+		# 		return HttpResponseRedirect('/')
+		# 	u.verified = True
+		# 	u.save()
+		# 	e = Event(type="verify_user",
+		# 		time_occurred=datetime.now(),
+		# 		user_id=u.id)
+		# 	e.save()
 	return HttpResponseRedirect('/')
