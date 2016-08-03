@@ -141,7 +141,7 @@ def handle_inbound(request):
 		message = dict["IncomingRequest"]["IncomingMessage"]["Message"]
 		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
 		logger.info("Received Message from number '%s'. \Message is: '%s'"
-					% (number, message)
+					% (number, message))
 		if "SJBKXG" in message:
 			u = User.objects.filter(number=number)
 			try:
