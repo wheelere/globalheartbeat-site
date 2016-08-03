@@ -28,15 +28,19 @@ def send_to_users(users, message):
 	appear in the API Report section of Mozeo's dashboard. In the second case,
 	a text message will actually be sent to all numbers.
 	"""
-	gen_params = '?companykey=%s&username=%s&password=%s&messagebody=%sstop=no' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
+	gen_params = '?companykey=%s&username=%s&password=%s&stop=no&messagebody=%s' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
+	now = datetime.now()
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
 		requests.get(settings.MOZEO_DEV_URL + param_str)
+		e = Event(type="send_message",
+			time_occurred=now,
+			user_id=user.id,)
+		e.save()
 
 def verify_user(user):
 	verify_str = ("Hello! Your number has been signed up to receive messages "
-				  "from Global Heartbeat! To confirm that you would like to "
-				  "receive these messages, reply 'SJBKXG' to this number.")
+				  "from Global Heartbeat! To confirm, reply with SJBKXG!")
 	send_to_users([user], verify_str)
 
 def home(request):
@@ -60,7 +64,7 @@ def send_sms(request):
 	"""
 	if request.method == "POST":
 		# Get the phone numbers to use
-		users = User.objects.all()
+		users = User.objects.filter(verified=True)
 		# dummy message for now
 		message = "Hello, World!"
 		# pass the users and message to the send function
@@ -100,8 +104,10 @@ def add_user(request):
 				e = Event(type="add_user",
 					time_occurred=datetime.now(),
 					user_id=u.id)
-				logger.info("New user added to database (" + u + ").")
-				messages.success(request, "User added!")
+				e.save()
+				logger.info("New user added to database: (%s)." % u)
+				messages.success(request, "User added! You will receive a verification message shortly.")
+				verify_user(u)
 			else:
 				logger.info("Attempt to add existing user")
 				messages.warning(request, "That number is already in our system.")
@@ -121,8 +127,13 @@ def remove_user(request):
 		if form.is_valid():
 			user_to_remove = User.objects.filter(number=form.cleaned_data['number'])
 			if user_to_remove:
+				u_id = user_to_remove.id
 				user_to_remove.delete()
 				messages.success(request, "You have been removed from our database.")
+				e = Event(type="remove_user",
+					time_occurred=datetime.now(),
+					user_id=u_id)
+				e.save()
 			else:
 				messages.warning(request, "Sorry, we do not have a listing for that number.")
 	# TODO: interact with user: alert regarding results or errors
@@ -140,14 +151,14 @@ def handle_inbound(request):
 		dict = xmltodict.parse(request.POST.get("XMLDATA"))
 		message = dict["IncomingRequest"]["IncomingMessage"]["Message"]
 		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
-		logger.info("Received Message from number '%s'. \Message is: '%s'"
+		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
 		if "SJBKXG" in message:
 			u = User.objects.filter(number=number)
 			try:
 				u = u.get()
 			except DoesNotExist:
-				logger.warning("Received inbound verify from an unlisted number.")
+				logger.warning("Received inbound verify from unlisted number: %s." % number)
 				return HttpResponseRedirect('/')
 			except MultipleObjectsReturned:
 				logger.error("The number " + number + " has multiple User listings.")
