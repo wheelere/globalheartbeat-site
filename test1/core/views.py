@@ -29,12 +29,14 @@ def send_to_users(users, message):
 	appear in the API Report section of Mozeo's dashboard. In the second case,
 	a text message will actually be sent to all numbers.
 	"""
-	gen_params = '?companykey=%s&username=%s&password=%s&stop=no&messagebody=%s' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
+	gen_params = ('?companykey=%s&username=%s&password=%s&stop=no&messagebody=%s'
+				 % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME,
+				 	settings.MOZEO_PASSWORD, message) )
 	now = datetime.now()
 	print "sending messages"
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
-		requests.get(settings.MOZEO_DEV_URL + param_str)
+		requests.get(settings.MOZEO_PROD_URL + param_str)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)
