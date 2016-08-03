@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.db import transaction
 from django.template import loader
+from django.views.decorators.csrf import csrf_exempt
 
 from test1.core.models import User, Event
 from .forms import SubmitNewUser, RemoveUser
@@ -126,6 +127,7 @@ def remove_user(request):
 	# TODO: interact with user: alert regarding results or errors
 	return HttpResponseRedirect('/')
 
+@csrf_exempt
 @transaction.atomic
 def handle_inbound(request):
 	""" handle_inbound is called when a POST request is made to the /inbound
