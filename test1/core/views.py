@@ -138,7 +138,7 @@ def handle_inbound(request):
 	logger.info("Received Inbound Request.")
 	if request.method == "POST":
 		for key, value in request.POST.iteritems():
-    		print "%s %s" % (key, value)
+			print "%s %s" % (key, value)
 		# message = request.POST.get("IncomingMessage")
 		# number = request.POST.get("Phonenumber")
 		# if "SJBKXG" in message:
