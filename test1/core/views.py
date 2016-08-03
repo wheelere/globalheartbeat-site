@@ -8,9 +8,10 @@ from django.conf import settings
 from django.db import transaction
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 from test1.core.models import User, Event
-from .forms import SubmitNewUser, RemoveUser
+from .forms import SubmitNewUser, RemoveUser, SendMessage
 
 import requests
 import logging
@@ -30,6 +31,7 @@ def send_to_users(users, message):
 	"""
 	gen_params = '?companykey=%s&username=%s&password=%s&stop=no&messagebody=%s' % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME, settings.MOZEO_PASSWORD, message)
 	now = datetime.now()
+	print "sending messages"
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
 		requests.get(settings.MOZEO_DEV_URL + param_str)
@@ -50,8 +52,11 @@ def home(request):
 	# Grab the forms here
 	new_form = SubmitNewUser()
 	remove_form = RemoveUser()
+	message_form = SendMessage()
 	# Create a context for the request, and add the forms to it as well
-	context = { 'new_form': new_form, 'remove_form': remove_form }
+	context = { 'new_form': new_form, 'remove_form': remove_form,
+				'message_form': message_form,
+				'logged_in': request.user.is_authenticated(), }
 	# render our template
 	return render(request, 'index.html', context=context)
 
@@ -63,13 +68,15 @@ def send_sms(request):
 	Regardless, it completes by redirecting to the root url.
 	"""
 	if request.method == "POST":
-		# Get the phone numbers to use
-		users = User.objects.filter(verified=True)
-		# dummy message for now
-		message = "Hello, World!"
-		# pass the users and message to the send function
-		send_to_users(users, message)
-		messages.success(request, "Message sent!")
+		form = SendMessage(request.POST)
+		if form.is_valid():
+			# Get the phone numbers to use
+			users = User.objects.filter(verified=True)
+			# get message from form
+			message = form.cleaned_data['message']
+			# pass the users and message to the send function
+			send_to_users(users, message)
+			messages.success(request, "Message sent!")
 		
 	# For now, return to the home page
 	return HttpResponseRedirect('/')

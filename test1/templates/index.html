@@ -18,10 +18,18 @@
         {{ remove_form.as_p }}
         <input type="submit" value="Remove number"/>
     </form>
+    {% if user.is_authenticated %}
     <form action="/send/" method="POST">
         {% csrf_token %}
-        <label> Send Message to Users: </label>
-        <input type="submit" value="Hello Users!"/>
+        {% for field in message_form %}
+        <p>{{ field.label_tag }}<br></br> {{ field }}</p>
+        {% endfor %}
+        <input type="submit" value="Send to Users"/>
     </form>
+    {% else %}
+    <form action="/login" method="GET">
+        <input type="submit" value="Log In"/>
+    </form>
+    {% endif %}
 
 {% endblock %}
