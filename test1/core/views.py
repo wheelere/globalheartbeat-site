@@ -134,7 +134,8 @@ def remove_user(request):
 	if request.method == "POST":
 		form = RemoveUser(request.POST)
 		if form.is_valid():
-			user_to_remove = User.objects.filter(number=form.cleaned_data['number'])
+			number = form.cleaned_data['number']
+			user_to_remove = User.objects.filter(number=number).get()
 			if user_to_remove:
 				u_id = user_to_remove.id
 				user_to_remove.delete()
