@@ -102,7 +102,7 @@ def add_user(request):
 				logger.info("New user added to database (" + u + ").")
 				messages.success(request, "User added!")
 			else:
-				logger.info("")
+				logger.info("Attempt to add existing user")
 				messages.warning(request, "That number is already in our system.")
 		else:
 			messages.error(request, "Please fill out the required fields.")
