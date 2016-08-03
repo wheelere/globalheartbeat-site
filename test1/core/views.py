@@ -15,7 +15,7 @@ from .forms import SubmitNewUser, RemoveUser
 import requests
 import logging
 
-logger = logging.getLogger('core.views.logs')
+logger = logging.getLogger('core.views.logger')
 
 def send_to_users(users, message):
 	""" send_to_users takes a list of User models and a message to send. It
@@ -138,7 +138,7 @@ def handle_inbound(request):
 	logger.info("Received Inbound Request.")
 	if request.method == "POST":
 		for key, value in request.POST.iteritems():
-			print "%s %s" % (key, value)
+			logger.info( "%s %s" % (key, value) )
 		# message = request.POST.get("IncomingMessage")
 		# number = request.POST.get("Phonenumber")
 		# if "SJBKXG" in message:
