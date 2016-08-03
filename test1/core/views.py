@@ -128,7 +128,7 @@ def remove_user(request):
 	# TODO: interact with user: alert regarding results or errors
 	return HttpResponseRedirect('/')
 
-@csrf_exempt
+@csrf_exempt # Necessary to allow external POST requests
 @transaction.atomic
 def handle_inbound(request):
 	""" handle_inbound is called when a POST request is made to the /inbound
@@ -138,8 +138,10 @@ def handle_inbound(request):
 	"""
 	if request.method == "POST":
 		dict = xmltodict.parse(request.POST.get("XMLDATA"))
-		for key, value in dict:
-			logger.info( "%s %s" % (key, value) )
+		message = dict["IncomingRequest"]["IncomingMessage"]["Message"]
+		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
+		logger.info("Number is %s" % number)
+		logger.info("Message is '%s'" % message)
 		# message = request.POST.get("IncomingMessage")
 		# number = request.POST.get("Phonenumber")
 		# if "SJBKXG" in message:
