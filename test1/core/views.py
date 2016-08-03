@@ -137,7 +137,7 @@ def handle_inbound(request):
 	correspondingly.
 	"""
 	if request.method == "POST":
-		dict = xmltodict.parse(request.body)
+		dict = xmltodict.parse(request.POST)
 		for key, value in dict:
 			logger.info( "%s %s" % (key, value) )
 		# message = request.POST.get("IncomingMessage")
