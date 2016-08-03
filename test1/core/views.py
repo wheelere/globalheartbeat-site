@@ -14,6 +14,7 @@ from .forms import SubmitNewUser, RemoveUser
 
 import requests
 import logging
+import xmltodict
 
 logger = logging.getLogger('core.views.logger')
 
@@ -135,9 +136,9 @@ def handle_inbound(request):
 	contain XML data including a static keyword, and the request will be handled
 	correspondingly.
 	"""
-	logger.info("Received Inbound Request.")
 	if request.method == "POST":
-		for key, value in request.POST.iteritems():
+		dict = xmltodict.parse(request.body)
+		for key, value in dict:
 			logger.info( "%s %s" % (key, value) )
 		# message = request.POST.get("IncomingMessage")
 		# number = request.POST.get("Phonenumber")
