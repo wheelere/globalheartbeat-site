@@ -24,7 +24,11 @@ class User(models.Model):
 		return self.first + ' ' + self.last + ', ' + self.number
 
 class Event(models.Model):
-	# Type of event. Current options: add_user, remove_user, send_message, verify_user
+	# Type of event. Current options:
+	# * add_user
+	# * remove_user
+	# * send_message
+	# * verify_user
 	type = models.CharField(max_length=20)
 	# Time of event.
 	time_occurred = models.DateTimeField(auto_now_add=True)
