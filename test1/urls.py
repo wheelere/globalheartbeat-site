@@ -17,6 +17,9 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 import test1.core.views as views
 
 urlpatterns = [
@@ -28,3 +31,7 @@ urlpatterns = [
     url(r'^remove/', views.remove_user),
     url(r'^inbound/', views.handle_inbound)
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
