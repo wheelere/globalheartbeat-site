@@ -1,31 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if messages %}
-  {% for message in messages %}
-    <p{% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
-      {{ message }}
-    </p>
-  {% endfor %}
 
-{% endif %}
-    <form action="/adduser/" method="POST">
-        {% csrf_token %}
-        {{ new_form.as_p }}
-        <input type="submit" value="Add number"/>
-    </form>
-    <form action="/remove/" method="POST">
-        {% csrf_token %}
-        {{ remove_form.as_p }}
-        <input type="submit" value="Remove number"/>
-    </form>
-    {% if user.is_authenticated %}
-    <form action="/send/" method="POST">
-        {% csrf_token %}
-        {% for field in message_form %}
-        <p>{{ field.label_tag }}<br></br> {{ field }}</p>
-        {% endfor %}
-        <input type="submit" value="Send to Users"/>
-    </form>
-    {% endif %}
+<div class="col-md-4">
+  <h2>Join Our Community</h2>
+  <p>It's easy to become a part of the Global Heartbeat! Sign up now to receive periodic messages about issues that are relevant to all of us.</p>
+  <p><a class="btn btn-default" href="/register" role="button">Register &raquo;</a></p>
+</div>
+<div class="col-md-4">
+  <h2>Share Your Thoughts</h2>
+  <p>Do you have something to say? Do you have a topic you'd like us to address? Feel free to reach out!</p>
+  <p><a class="btn btn-default" href="/contact" role="button">Contact Us &raquo;</a></p>
+</div>
+<div class="col-md-4">
+  <h2>See Past Messages</h2>
+  <p>We keep a catalog of every message we've sent. Feel free to explore our history while you consider being a part of our future!</p>
+  <p><a class="btn btn-default" href="/history" role="button">History &raquo;</a></p>
+</div>
+
 
 {% endblock %}

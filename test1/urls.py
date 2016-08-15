@@ -26,10 +26,10 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', auth_views.login),
     url(r'^$', views.home, name='home'),
-    url(r'^send/', views.send_sms),
-    url(r'^adduser/', views.add_user),
-    url(r'^remove/', views.remove_user),
-    url(r'^inbound/', views.handle_inbound)
+    url(r'^inbound/', views.handle_inbound),
+    url(r'^register/', views.register),
+    url(r'^outbox/', views.outbound_message),
+    url(r'^remove/', views.remove),
 ]
 
 if settings.DEBUG:
