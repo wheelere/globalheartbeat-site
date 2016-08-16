@@ -18,27 +18,15 @@ import test1.core.utils as utils
 
 logger = logging.getLogger('core.views.logger')
 
+def contactus(request):
+	return render(request, 'contactus.html')
+
+def history(request):
+	return render(request, 'history.html')
+
 def home(request):
 	"""This function renders the landing page."""
 	return render(request, 'index.html')
-
-def outbound_message(request):
-	"""Renders the outbound message page and handles sending a message to the
-	users.
-	"""
-	if request.method == "POST":
-		form = SendMessage(request.POST)
-		if form.is_valid():
-			# Get the phone numbers to use
-			users = User.objects.filter(verified=True)
-			# get message from form
-			message = form.cleaned_data['message']
-			# pass the users and message to the send function
-			utils.send_to_users(users, message)
-			messages.success(request, "Message sent!")
-	else:
-		form = SendMessage()
-	return render(request, 'send_message.html', {'form': form})
 
 @transaction.atomic # guarantee atomicity of the database
 def register(request):
@@ -58,6 +46,23 @@ def remove(request):
 		form = RemoveUser()
 	return render(request, 'remove.html', {'form': form})
 
+def outbound_message(request):
+	"""Renders the outbound message page and handles sending a message to the
+	users.
+	"""
+	if request.method == "POST":
+		form = SendMessage(request.POST)
+		if form.is_valid():
+			# Get the phone numbers to use
+			users = User.objects.filter(verified=True)
+			# get message from form
+			message = form.cleaned_data['message']
+			# pass the users and message to the send function
+			utils.send_to_users(users, message)
+			messages.success(request, "Message sent!")
+	else:
+		form = SendMessage()
+	return render(request, 'send_message.html', {'form': form})
 
 @csrf_exempt # Necessary to allow external POST requests
 @transaction.atomic
