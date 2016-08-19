@@ -42,6 +42,7 @@ class OutboundMessage(models.Model):
 	content = models.CharField(max_length=160)
 	time_sent = models.DateTimeField(auto_now_add=True)
 	recipient_id = models.IntegerField()
+	public = models.BooleanField()
 
 class InboundMessages(models.Model):
 	content = models.CharField(max_length=160)
