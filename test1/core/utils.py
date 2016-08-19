@@ -39,7 +39,7 @@ def add_user(request, logger):
 			e.save()
 			logger.info("New user added to database: (%s)." % u)
 			messages.success(request, "User added! You will receive a verification message shortly.")
-			utils.verify_user(u)
+			verify_user(u)
 		else:
 			logger.info("Attempt to add existing user")
 			messages.warning(request, "That number is already in our system.")
