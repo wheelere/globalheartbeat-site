@@ -32,10 +32,9 @@ def home(request):
 def register(request):
 	"""Renders the registration page."""
 	# maybe handle add_user here as well
+	form = SubmitNewUser()
 	if request.method == "POST":
 		utils.add_user(request, logger)
-	else:
-		form = SubmitNewUser()
 	return render(request, 'register.html', {'form': form})
 
 def remove(request):
