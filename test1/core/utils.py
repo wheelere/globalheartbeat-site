@@ -7,7 +7,7 @@ from django.db import transaction
 import requests
 
 from test1.core.forms import SubmitNewUser, RemoveUser, SendMessage
-from test1.core.models import User, Event
+from test1.core.models import User, Event, OutboundMessage, InboundMessage
 
 @transaction.atomic
 def add_user(request, logger):
@@ -64,7 +64,24 @@ def remove_user(request, logger):
 		else:
 			messages.warning(request, "Sorry, we do not have a listing for that number.")
 
-def send_to_users(users, message):
+
+def save_outbound_to_db(message, recipient_id, is_public=False):
+	om = OutboundMessage(content=message, user_id=recipient_id, public=is_public)
+	om.save()
+
+def save_inbound_to_db(message, number):
+	u = User.objects.filter(number=number)
+	if u:
+		u = u.get()
+	else:
+		u = None
+	recent_outbound = OutboundMessage.objects.filter(user_id=sender.id).order_by('-time_sent')[0]
+	im = InboundMessage(content=message, sender_num=number,
+						sender_id=user.id, recent_outbound_id=recent_outbound.id)
+	im.save()
+
+
+def send_to_users(users, message, is_public):
 	""" send_to_users takes a list of User models and a message to send. It
 	constructs a url with parameters to make a GET request in order to have that
 	message be sent to the phone numbers corresponding to the list of users.
@@ -81,6 +98,7 @@ def send_to_users(users, message):
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
 		requests.get(settings.MOZEO_PROD_URL + param_str)
+		save_outbound_to_db(message, user.id, is_public)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)
@@ -89,4 +107,4 @@ def send_to_users(users, message):
 def verify_user(user):
 	verify_str = ("Hello! Your number has been signed up to receive messages "
 				  "from Global Heartbeat! To confirm, reply with SJBKXG!")
-	send_to_users([user], verify_str)
+	send_to_users([user], verify_str, is_public=False)

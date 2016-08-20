@@ -57,7 +57,7 @@ def outbound_message(request):
 			# get message from form
 			message = form.cleaned_data['message']
 			# pass the users and message to the send function
-			utils.send_to_users(users, message)
+			utils.send_to_users(users, message, is_public=True)
 			messages.success(request, "Message sent!")
 	else:
 		form = SendMessage()
@@ -77,6 +77,7 @@ def handle_inbound(request):
 		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
 		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
+		utils.save_inbound_to_db(message, number)
 		if "SJBKXG" in message:
 			u = User.objects.filter(number=number)
 			try:
