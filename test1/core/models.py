@@ -38,13 +38,11 @@ class Event(models.Model):
 	def __str__(self):
 		return self.type + '.' + self.user_id
 
-class OutboundMessage(models.Model):
+class Broadcast(models.Model):
 	content = models.CharField(max_length=160)
 	time_sent = models.DateTimeField(auto_now_add=True)
-	recipient_id = models.IntegerField()
-	public = models.BooleanField()
 
-class InboundMessages(models.Model):
+class InboundMessage(models.Model):
 	content = models.CharField(max_length=160)
 	sender_num = models.CharField(max_length=20)
 	sender_cc = models.CharField(max_length=5, default='1')

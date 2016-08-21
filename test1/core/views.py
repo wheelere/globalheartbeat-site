@@ -78,7 +78,7 @@ def handle_inbound(request):
 		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
 		utils.save_inbound_to_db(message, number)
-		if "SJBKXG" in message:
+		if "harmony" in message.lower():
 			u = User.objects.filter(number=number)
 			try:
 				u = u.get()
