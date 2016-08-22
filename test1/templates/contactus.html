@@ -7,8 +7,8 @@
 	<div class="row">
 		<div class="col-lg-8 col-lg-offset-2">
 			<h1>Contact Us</h1>
-			<form id="contact-form" method="post" action="contact.php" role="form">
-
+			<form id="contact-form" method="POST" role="form">
+            {% csrf_token %}
     <div class="messages"></div>
 
     <div class="controls">
@@ -16,14 +16,14 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="form_name">Firstname *</label>
+                    <label for="form_name">First Name *</label>
                     <input id="form_name" type="text" name="name" class="form-control" placeholder="Please enter your firstname" required="required" data-error="Firstname is required.">
                     <div class="help-block with-errors"></div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label for="form_lastname">Lastname *</label>
+                    <label for="form_lastname">Last Name *</label>
                     <input id="form_lastname" type="text" name="surname" class="form-control" placeholder="Please enter your lastname" required="required" data-error="Lastname is required.">
                     <div class="help-block with-errors"></div>
                 </div>
@@ -59,7 +59,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <p class="text-muted"><strong>*</strong> These fields are required. Contact form template by <a href="http://bootstrapious.com" target="_blank">Bootstrapious</a>.</p>
+                <p class="text-muted"><strong>*</strong> These fields are required.</p>
             </div>
         </div>
     </div>

@@ -19,6 +19,18 @@ import test1.core.utils as utils
 logger = logging.getLogger('core.views.logger')
 
 def contactus(request):
+	if request.method == "POST":
+		name = request.POST['name']
+		surname = request.POST['surname']
+		email = request.POST['email']
+		phone = request.POST['phone']
+		message = request.POST['message']
+		logger.info("MESSAGE RECEIVED: "
+			"FROM: %s %s "
+			"MESSAGE: %s "
+			"CONTACT INFORMATION: %s, %s"
+			% (name, surname, message, email, phone))
+		messages.success(request, "Message received!")
 	return render(request, 'contactus.html')
 
 def history_default(request):
@@ -31,14 +43,14 @@ def history(request, year, month, day):
 	broadcasts = Broadcast.objects.filter(time_sent__year=year,
 										  time_sent__month=month,
 										  time_sent__day=day)
-	messages = broadcasts.values('content', 'time_sent').order_by('-time_sent')
+	broadcasts = broadcasts.values('content', 'time_sent').order_by('-time_sent')
 	# get the list of all valid dates
 	all_datetimes = Broadcast.objects.all().values_list('time_sent', flat=True)
 	seen = []
 	for dt in all_datetimes:
 		seen.append(dt.date()) if not dt.date() in seen else None
-	print seen
-	context = {'broadcasts': messages, 'dates': seen }
+	context = {'broadcasts': broadcasts, 'dates': seen,
+			   'day': datetime.strptime(year+month+day, '%Y%m%d') }
 	return render(request, 'history.html', context)
 
 def home(request):
@@ -67,7 +79,10 @@ def outbound_message(request):
 	users.
 	"""
 	if request.method == "POST":
+		print request.POST
 		form = SendMessage(request.POST)
+		for field in form:
+			print field
 		if form.is_valid():
 			# Get the phone numbers to use
 			users = User.objects.filter(verified=True)

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container">
+	<h1>Messages for {{ day|date:"D, M d, Y"}}</h1>
 {% for broadcast in broadcasts %}
 	<div class="row">
 		<label class="timestamp"> {{ broadcast.time_sent|date:"D d M Y" }} {{ broadcast.time_sent|time:"H:i" }}: </label>
@@ -8,7 +9,7 @@
 	</div>
 {% endfor %}
 	<div class="row">
-		<h1>All Dates</h1>
+		<h3>All Dates</h3>
 	</div>
 	{% for d in dates %}
 	<div class="row">
