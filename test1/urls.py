@@ -26,12 +26,13 @@ urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^admin/', admin.site.urls),
     url(r'^contactus/', views.contactus),
-    url(r'^history/', views.history),
-    url(r'^inbound/', views.handle_inbound),
+    url(r'^history/(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d+)/$', views.history),
+    url(r'^history/$', views.history_default),
+    url(r'^inbound/$', views.handle_inbound),
     url(r'^login/$', auth_views.login),
-    url(r'^register/', views.register),
-    url(r'^remove/', views.remove),
-    url(r'^outbox/', views.outbound_message),
+    url(r'^register/$', views.register),
+    url(r'^remove/$', views.remove),
+    url(r'^outbox/$', views.outbound_message),
 ]
 
 if settings.DEBUG:

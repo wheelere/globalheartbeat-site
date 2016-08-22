@@ -7,7 +7,7 @@ from django.db import transaction
 import requests
 
 from test1.core.forms import SubmitNewUser, RemoveUser, SendMessage
-from test1.core.models import User, Event, OutboundMessage, InboundMessage
+from test1.core.models import User, Event, Broadcast, InboundMessage
 
 @transaction.atomic
 def add_user(request, logger):
@@ -75,9 +75,8 @@ def save_inbound_to_db(message, number):
 		u = u.get()
 	else:
 		u = None
-	recent_outbound = Broadcast.objects.filter(user_id=sender.id).order_by('-time_sent')[0]
 	im = InboundMessage(content=message, sender_num=number,
-						sender_id=user.id, recent_outbound_id=recent_outbound.id)
+						sender_id=user.id)
 	im.save()
 
 
@@ -98,7 +97,7 @@ def send_to_users(users, message):
 	save_outbound_to_db(message)
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
-		requests.get(settings.MOZEO_PROD_URL + param_str)
+		requests.get(settings.MOZEO_DEV_URL + param_str)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)

@@ -47,5 +47,4 @@ class InboundMessage(models.Model):
 	sender_num = models.CharField(max_length=20)
 	sender_cc = models.CharField(max_length=5, default='1')
 	sender_id = models.IntegerField(null=True)
-	recent_outbound_id = models.IntegerField(null=True)
 

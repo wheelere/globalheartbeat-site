@@ -9,7 +9,7 @@ from django.db import transaction
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
-from test1.core.models import User, Event
+from test1.core.models import User, Event, Broadcast
 from .forms import SubmitNewUser, RemoveUser, SendMessage
 
 import logging
@@ -21,8 +21,25 @@ logger = logging.getLogger('core.views.logger')
 def contactus(request):
 	return render(request, 'contactus.html')
 
-def history(request):
-	return render(request, 'history.html')
+def history_default(request):
+	recent = Broadcast.objects.all().order_by('-time_sent')[0]
+	last_date = recent.time_sent.date().isoformat()
+	return HttpResponseRedirect('/history/' + last_date + '/')
+
+def history(request, year, month, day):
+	# get the list of broadcasts sent on the specified day
+	broadcasts = Broadcast.objects.filter(time_sent__year=year,
+										  time_sent__month=month,
+										  time_sent__day=day)
+	messages = broadcasts.values('content', 'time_sent').order_by('-time_sent')
+	# get the list of all valid dates
+	all_datetimes = Broadcast.objects.all().values_list('time_sent', flat=True)
+	seen = []
+	for dt in all_datetimes:
+		seen.append(dt.date()) if not dt.date() in seen else None
+	print seen
+	context = {'broadcasts': messages, 'dates': seen }
+	return render(request, 'history.html', context)
 
 def home(request):
 	"""This function renders the landing page."""
@@ -57,7 +74,7 @@ def outbound_message(request):
 			# get message from form
 			message = form.cleaned_data['message']
 			# pass the users and message to the send function
-			utils.send_to_users(users, message, is_public=True)
+			utils.send_to_users(users, message)
 			messages.success(request, "Message sent!")
 	else:
 		form = SendMessage()

@@ -1,4 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<div class="container">
+{% for broadcast in broadcasts %}
+	<div class="row">
+		<label class="timestamp"> {{ broadcast.time_sent|date:"D d M Y" }} {{ broadcast.time_sent|time:"H:i" }}: </label>
+		<p>{{ broadcast.content }}</p>
+	</div>
+{% endfor %}
+	<div class="row">
+		<h1>All Dates</h1>
+	</div>
+	{% for d in dates %}
+	<div class="row">
+		<a href="/history/{{ d|date:'Y-m-d'}}/">{{ d|date:'M d Y'}}</a>
+	</div>
+{% endfor %}
+</div>
 {% endblock %}
