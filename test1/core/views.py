@@ -97,7 +97,6 @@ def outbound_message(request):
 	return render(request, 'send_message.html', {'form': form})
 
 @csrf_exempt # Necessary to allow external POST requests
-@transaction.atomic
 def handle_inbound(request):
 	""" handle_inbound is called when a POST request is made to the /inbound
 	url from an external source (CURRENTLY MOZEO). The request received will 
