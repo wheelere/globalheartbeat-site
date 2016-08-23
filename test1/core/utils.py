@@ -69,7 +69,8 @@ def save_outbound_to_db(message):
 	om = Broadcast(content=message)
 	om.save()
 
-def save_inbound_to_db(message, number):
+def save_inbound_to_db(message, number, logger):
+	logger.info("Saving message to database...")
 	u = User.objects.filter(number=number)
 	if u:
 		u = u.get()
@@ -78,6 +79,7 @@ def save_inbound_to_db(message, number):
 	im = InboundMessage(content=message, sender_num=number,
 						sender_id=user.id)
 	im.save()
+	logger.info("Message saved!")
 
 
 def send_to_users(users, message):
@@ -104,5 +106,5 @@ def send_to_users(users, message):
 
 def verify_user(user):
 	verify_str = ("Hello! Your number has been signed up to receive messages "
-				  "from Global Heartbeat! To confirm, include HARMONY in your reply!")
+				  "from Global Heartbeat! To confirm, include 'Heartbeat' in your reply!")
 	send_to_users([user], verify_str)

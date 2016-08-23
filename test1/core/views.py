@@ -109,8 +109,9 @@ def handle_inbound(request):
 		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
 		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
-		utils.save_inbound_to_db(message, number)
-		if "harmony" in message.lower():
+		utils.save_inbound_to_db(message, number, logger)
+		logger.info("got past saving to db")
+		if "heartbeat" in message.lower():
 			u = User.objects.filter(number=number)
 			try:
 				u = u.get()
