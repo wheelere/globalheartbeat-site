@@ -110,7 +110,6 @@ def handle_inbound(request):
 		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
 		utils.save_inbound_to_db(message, number, logger)
-		logger.info("got past saving to db")
 		if "heartbeat" in message.lower():
 			u = User.objects.filter(number=number)
 			try:
