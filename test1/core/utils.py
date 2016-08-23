@@ -70,16 +70,14 @@ def save_outbound_to_db(message):
 	om.save()
 
 def save_inbound_to_db(message, number, logger):
-	logger.info("Saving message to database...")
 	u = User.objects.filter(number=number)
+	uid = None
 	if u:
 		u = u.get()
-	else:
-		u = None
+		uid = u.id
 	im = InboundMessage(content=message, sender_num=number,
-						sender_id=user.id)
+						sender_id=uid)
 	im.save()
-	logger.info("Message saved!")
 
 
 def send_to_users(users, message):
