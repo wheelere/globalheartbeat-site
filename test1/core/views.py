@@ -89,6 +89,7 @@ def outbound_message(request):
 			# get message from form
 			message = form.cleaned_data['message']
 			# pass the users and message to the send function
+			utils.save_outbound_to_db(message)
 			utils.send_to_users(users, message)
 			messages.success(request, "Message sent!")
 	else:

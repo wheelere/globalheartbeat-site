@@ -94,10 +94,9 @@ def send_to_users(users, message):
 				 % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME,
 				 	settings.MOZEO_PASSWORD, message) )
 	now = datetime.now()
-	save_outbound_to_db(message)
 	for user in users:
 		param_str = gen_params + '&to=' + user.number
-		requests.get(settings.MOZEO_DEV_URL + param_str)
+		requests.get(settings.MOZEO_PROD_URL + param_str)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)
