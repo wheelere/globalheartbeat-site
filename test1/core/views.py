@@ -20,11 +20,13 @@ logger = logging.getLogger('core.views.logger')
 
 def contactus(request):
 	if request.method == "POST":
+		# Get POST data manually. The contact form is from a non-Django template.
 		name = request.POST['name']
 		surname = request.POST['surname']
 		email = request.POST['email']
 		phone = request.POST['phone']
 		message = request.POST['message']
+		# TODO: Send the user message somewhere more important
 		logger.info("MESSAGE RECEIVED: "
 			"FROM: %s %s "
 			"MESSAGE: %s "
@@ -34,6 +36,8 @@ def contactus(request):
 	return render(request, 'contactus.html')
 
 def history_default(request):
+	"""Get broadcasts for the most recent day that any broadcast was sent.
+	"""
 	recent = Broadcast.objects.all().order_by('-time_sent')[0]
 	last_date = recent.time_sent.date().isoformat()
 	return HttpResponseRedirect('/history/' + last_date + '/')
@@ -46,6 +50,7 @@ def history(request, year, month, day):
 	broadcasts = broadcasts.values('content', 'time_sent').order_by('-time_sent')
 	# get the list of all valid dates
 	all_datetimes = Broadcast.objects.all().values_list('time_sent', flat=True)
+	# Create a list of the dates without duplicates
 	seen = []
 	for dt in all_datetimes:
 		seen.append(dt.date()) if not dt.date() in seen else None
@@ -60,7 +65,6 @@ def home(request):
 @transaction.atomic # guarantee atomicity of the database
 def register(request):
 	"""Renders the registration page."""
-	# maybe handle add_user here as well
 	form = SubmitNewUser()
 	if request.method == "POST":
 		utils.add_user(request, logger)
@@ -69,6 +73,7 @@ def register(request):
 def remove(request):
 	"""Renders the removal page and handles user removal requests."""
 	if request.method == "POST":
+		# If post request, try to remove the submitted number
 		utils.remove_user(request, logger)
 	else:
 		form = RemoveUser()
@@ -79,10 +84,8 @@ def outbound_message(request):
 	users.
 	"""
 	if request.method == "POST":
-		print request.POST
+		# Grab form data
 		form = SendMessage(request.POST)
-		for field in form:
-			print field
 		if form.is_valid():
 			# Get the phone numbers to use
 			users = User.objects.filter(verified=True)
@@ -104,12 +107,16 @@ def handle_inbound(request):
 	correspondingly.
 	"""
 	if request.method == "POST":
+		# parse XML data received from Mozeo
+		# See Mozeo account for the Inbound API and data structure
 		dict = xmltodict.parse(request.POST.get("XMLDATA"))
 		message = dict["IncomingRequest"]["IncomingMessage"]["Message"]
 		number = dict["IncomingRequest"]["IncomingMessage"]["Phonenumber"]
+		# Record the inbound message in logs and database
 		logger.info("Received Message from number '%s'. \nMessage is: '%s'"
 					% (number, message))
 		utils.save_inbound_to_db(message, number, logger)
+		# If message contains our confirmation code, verify the user
 		if "heartbeat" in message.lower():
 			u = User.objects.filter(number=number)
 			try:
