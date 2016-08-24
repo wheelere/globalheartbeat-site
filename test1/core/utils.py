@@ -39,6 +39,7 @@ def add_user(request, logger):
 			e.save()
 			logger.info("New user added to database: (%s)." % u)
 			messages.success(request, "User added! You will receive a verification message shortly.")
+			# Prepare and send a message to confirm the new user's number
 			verify_user(u)
 		else:
 			logger.info("Attempt to add existing user")
@@ -50,6 +51,7 @@ def add_user(request, logger):
 def remove_user(request, logger):
 	form = RemoveUser(request.POST)
 	if form.is_valid():
+		# validate the form and check if there's a matching user
 		number = form.cleaned_data['number']
 		user_to_remove = User.objects.filter(number=number).get()
 		if user_to_remove:
@@ -66,10 +68,12 @@ def remove_user(request, logger):
 
 
 def save_outbound_to_db(message):
+	"""Save a message to the core_broadcast table."""
 	om = Broadcast(content=message)
 	om.save()
 
 def save_inbound_to_db(message, number, logger):
+	"""Save a message to the core_inboundmessage table."""
 	u = User.objects.filter(number=number)
 	uid = None
 	if u:
