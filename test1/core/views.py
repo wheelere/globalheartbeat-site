@@ -5,6 +5,7 @@ from django.shortcuts import render, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import messages
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import transaction
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
@@ -26,13 +27,20 @@ def contactus(request):
 		email = request.POST['email']
 		phone = request.POST['phone']
 		message = request.POST['message']
-		# TODO: Send the user message somewhere more important
+		send_mail(
+			'MESSAGE FROM USER: %s %s' % (name, surname),
+			"MESSAGE: %s\n"
+			"CONTACT INFORMATION: %s, %s" % (message, email, phone),
+			'globalheartbeat1@gmail.com',
+			['globalheartbeat@umich.edu'],
+			fail_silently=False,
+		)
 		logger.info("MESSAGE RECEIVED: "
-			"FROM: %s %s "
-			"MESSAGE: %s "
+			"FROM: %s %s\n"
+			"MESSAGE: %s\n"
 			"CONTACT INFORMATION: %s, %s"
 			% (name, surname, message, email, phone))
-		messages.success(request, "Message received!")
+		messages.success(request, "Message sent!")
 	return render(request, 'contactus.html')
 
 def history_default(request):
