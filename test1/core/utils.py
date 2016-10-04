@@ -38,7 +38,7 @@ def add_user(request, logger):
 				user_id=u.id)
 			e.save()
 			logger.info("New user added to database: (%s)." % u)
-			messages.success(request, "User added! You will receive a verification message shortly.")
+			messages.success(request, "User added! You will receive a verification message shortly!")
 			# Prepare and send a message to confirm the new user's number
 			verify_user(u)
 		else:
