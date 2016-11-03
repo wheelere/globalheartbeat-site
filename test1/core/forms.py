@@ -16,5 +16,6 @@ class RemoveUser(forms.Form):
 							 label='Remove a number from our database')
 
 class SendMessage(forms.Form):
-	message = forms.CharField(max_length=140, widget=forms.Textarea,
+	message = forms.CharField(max_length=140,
+		widget=forms.Textarea(attrs={'placeholder': 'Enter Message',}),
 		label='Prepare a message to send. 140 character limit.')
