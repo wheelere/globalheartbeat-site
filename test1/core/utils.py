@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 import requests
+import urllib
 
 from test1.core.forms import SubmitNewUser, RemoveUser, SendMessage
 from test1.core.models import User, Event, Broadcast, InboundMessage
@@ -90,17 +91,24 @@ def send_to_users(users, message):
 	message be sent to the phone numbers corresponding to the list of users.
 	Currently, this function is configured for use with the Mozeo API. 
 	Note that 'settings.MOZEO_*_URL' determines whether the GET request is sent to
-	a dummy URL or a Production URL. In the first case, the sent messages will only
+	a dummy URL (*=DEV) or a Production URL (*=PROD). In the first case, the sent messages will only
 	appear in the API Report section of Mozeo's dashboard. In the second case,
 	a text message will actually be sent to all numbers.
 	"""
-	gen_params = ('?companykey=%s&username=%s&password=%s&stop=no&messagebody=%s'
-				 % (settings.MOZEO_COMPANY_KEY, settings.MOZEO_USERNAME,
-				 	settings.MOZEO_PASSWORD, message) )
+	params = { 'companykey': settings.MOZEO_COMPANY_KEY,
+			   'username': settings.MOZEO_USERNAME,
+			   'password': settings.MOZEO_PASSWORD,
+			   'stop': 'no',
+			   'messagebody': message
+			 }
 	now = datetime.now()
 	for user in users:
-		param_str = gen_params + '&to=' + user.number
-		requests.get(settings.MOZEO_PROD_URL + param_str)
+		# make a copy of the parameters to add each user
+		param_cp = params.copy()
+		param_cp.update({'to': user.number})
+		# url encode the parameters
+		param_str = urllib.urlencode(param_cp)
+		requests.get(settings.MOZEO_DEV_URL + '?' + param_str)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)
