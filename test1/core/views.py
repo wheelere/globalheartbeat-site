@@ -41,6 +41,8 @@ def contactus(request):
 			"CONTACT INFORMATION: %s, %s"
 			% (name, surname, message, email, phone))
 		messages.success(request, "Message sent!")
+		# Always use HttpResponse Redirect when dealing with POST data
+		return HttpResponseRedirect('/contactus/')
 	return render(request, 'contactus.html')
 
 def history_default(request):
@@ -76,6 +78,8 @@ def register(request):
 	form = SubmitNewUser()
 	if request.method == "POST":
 		utils.add_user(request, logger)
+		# Always use HttpResponse Redirect when dealing with POST data
+		return HttpResponseRedirect('/register/')
 	return render(request, 'register.html', {'form': form})
 
 def remove(request):
@@ -83,6 +87,8 @@ def remove(request):
 	if request.method == "POST":
 		# If post request, try to remove the submitted number
 		utils.remove_user(request, logger)
+		# Always use HttpResponse Redirect when dealing with POST data
+		return HttpResponseRedirect('/remove/')
 	else:
 		form = RemoveUser()
 	return render(request, 'remove.html', {'form': form})
@@ -95,17 +101,22 @@ def outbound_message(request):
 		# Grab form data
 		form = SendMessage(request.POST)
 		if form.is_valid():
-			# Get the phone numbers to use
-			users = User.objects.filter(verified=True)
+			if request.POST['action'] == 'Test':
+				users = User.objects.filter(first='Nisha', last='Mohan')
+			elif request.POST['action'] == "Broadcast":
+				# Get the phone numbers to use
+				users = User.objects.filter(verified=True)
 			# get message from form
 			message = form.cleaned_data['message']
 			# pass the users and message to the send function
 			utils.save_outbound_to_db(message)
 			utils.send_to_users(users, message)
 			messages.success(request, "Message sent!")
+		# Always use HttpResponse Redirect when dealing with POST data
+		return HttpResponseRedirect('/outbox/')
 	else:
 		form = SendMessage()
-	return render(request, 'send_message.html', {'form': form})
+		return render(request, 'send_message.html', {'form': form})
 
 @csrf_exempt # Necessary to allow external POST requests
 def handle_inbound(request):
