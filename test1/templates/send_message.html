@@ -5,6 +5,7 @@
     {% for field in form %}
        	<p>{{ field.label_tag }}<br></br> {{ field }}</p>
     {% endfor %}
-    <input type="submit" value="Send to Users"/>
+    <input type="submit" name="action" value="Broadcast"/>
+    <input type="submit" name="action" value="Test"/>
 </form>
 {% endblock %}
