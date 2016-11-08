@@ -108,7 +108,7 @@ def send_to_users(users, message):
 		param_cp.update({'to': user.number})
 		# url encode the parameters
 		param_str = urllib.urlencode(param_cp)
-		requests.get(settings.MOZEO_DEV_URL + '?' + param_str)
+		requests.get(settings.MOZEO_PROD_URL + '?' + param_str)
 		e = Event(type="send_message",
 			time_occurred=now,
 			user_id=user.id,)
