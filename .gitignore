@@ -1,0 +1,14 @@
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Migration history for django's database stuff
+test1/core/migrations/
+
+# Confidential Info
+test1/settings_secret.py
+
+# virtual environment
+venv/
