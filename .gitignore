@@ -12,3 +12,6 @@ test1/settings_secret.py
 
 # virtual environment
 venv/
+
+# pyc files
+*.pyc
